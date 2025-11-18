@@ -18,6 +18,22 @@ const randomColor = () => {
   return colors[Math.floor(Math.random() * colors.length)];
 };
 
+const generateShade = (baseColor: string, index: number, total: number) => {
+  // Convert hex to RGB
+  const r = parseInt(baseColor.slice(1, 3), 16);
+  const g = parseInt(baseColor.slice(3, 5), 16);
+  const b = parseInt(baseColor.slice(5, 7), 16);
+  
+  // Adjust brightness based on index (-15% to +15%)
+  const factor = total > 1 ? 0.85 + (index / (total - 1)) * 0.3 : 1;
+  
+  const newR = Math.min(255, Math.max(0, Math.round(r * factor)));
+  const newG = Math.min(255, Math.max(0, Math.round(g * factor)));
+  const newB = Math.min(255, Math.max(0, Math.round(b * factor)));
+  
+  return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
+};
+
 export const PartForm = ({ onAddPart }: PartFormProps) => {
   const [name, setName] = useState("");
   const [width, setWidth] = useState(2);
@@ -36,7 +52,7 @@ export const PartForm = ({ onAddPart }: PartFormProps) => {
           width,
           height,
           depth,
-          color,
+          color: generateShade(color, i, quantity),
         });
       }
       setName("");

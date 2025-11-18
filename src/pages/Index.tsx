@@ -28,7 +28,7 @@ const Index = () => {
   }, [parts, container]);
 
   const handleAddPart = (part: Part) => {
-    setParts([...parts, part]);
+    setParts((prevParts) => [...prevParts, part]);
   };
 
   const handleAddParts = (newParts: Part[]) => {

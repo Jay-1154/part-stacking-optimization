@@ -23,23 +23,27 @@ export const PartForm = ({ onAddPart }: PartFormProps) => {
   const [width, setWidth] = useState(2);
   const [height, setHeight] = useState(2);
   const [depth, setDepth] = useState(2);
+  const [quantity, setQuantity] = useState(1);
   const [color, setColor] = useState(randomColor());
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (name && width > 0 && height > 0 && depth > 0) {
-      onAddPart({
-        id: crypto.randomUUID(),
-        name,
-        width,
-        height,
-        depth,
-        color,
-      });
+    if (name && width > 0 && height > 0 && depth > 0 && quantity > 0) {
+      for (let i = 0; i < quantity; i++) {
+        onAddPart({
+          id: crypto.randomUUID(),
+          name: quantity > 1 ? `${name} #${i + 1}` : name,
+          width,
+          height,
+          depth,
+          color,
+        });
+      }
       setName("");
       setWidth(2);
       setHeight(2);
       setDepth(2);
+      setQuantity(1);
       setColor(randomColor());
     }
   };
@@ -108,6 +112,21 @@ export const PartForm = ({ onAddPart }: PartFormProps) => {
               required
             />
           </div>
+        </div>
+        <div>
+          <Label htmlFor="part-quantity" className="text-sm font-medium">
+            Quantity
+          </Label>
+          <Input
+            id="part-quantity"
+            type="number"
+            min="1"
+            step="1"
+            value={quantity}
+            onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
+            className="mt-1"
+            required
+          />
         </div>
         <div>
           <Label htmlFor="part-color" className="text-sm font-medium">

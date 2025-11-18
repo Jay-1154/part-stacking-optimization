@@ -3,6 +3,7 @@ import { Part, Container } from "@/types/Part";
 import { optimizeStacking } from "@/utils/stackingAlgorithm";
 import { BoxDimensionsForm } from "@/components/BoxDimensionsForm";
 import { PartForm } from "@/components/PartForm";
+import { FileUploadForm } from "@/components/FileUploadForm";
 import { PartsList } from "@/components/PartsList";
 import { Scene3D } from "@/components/Scene3D";
 import { ExportControls } from "@/components/ExportControls";
@@ -28,6 +29,10 @@ const Index = () => {
 
   const handleAddPart = (part: Part) => {
     setParts([...parts, part]);
+  };
+
+  const handleAddParts = (newParts: Part[]) => {
+    setParts([...parts, ...newParts]);
   };
 
   const handleRemovePart = (id: string) => {
@@ -61,6 +66,7 @@ const Index = () => {
           <div className="lg:col-span-1 space-y-6">
             <BoxDimensionsForm container={container} onChange={setContainer} />
             <PartForm onAddPart={handleAddPart} />
+            <FileUploadForm onAddParts={handleAddParts} />
             <PartsList parts={parts} onRemovePart={handleRemovePart} />
             <ExportControls
               container={container}

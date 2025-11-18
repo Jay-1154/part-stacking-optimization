@@ -19,19 +19,67 @@ const randomColor = () => {
 };
 
 const generateShade = (baseColor: string, index: number, total: number) => {
+  if (total === 1) return baseColor;
+  
   // Convert hex to RGB
   const r = parseInt(baseColor.slice(1, 3), 16);
   const g = parseInt(baseColor.slice(3, 5), 16);
   const b = parseInt(baseColor.slice(5, 7), 16);
   
-  // Adjust brightness based on index (-15% to +15%)
-  const factor = total > 1 ? 0.85 + (index / (total - 1)) * 0.3 : 1;
+  // Convert RGB to HSL
+  const rNorm = r / 255;
+  const gNorm = g / 255;
+  const bNorm = b / 255;
   
-  const newR = Math.min(255, Math.max(0, Math.round(r * factor)));
-  const newG = Math.min(255, Math.max(0, Math.round(g * factor)));
-  const newB = Math.min(255, Math.max(0, Math.round(b * factor)));
+  const max = Math.max(rNorm, gNorm, bNorm);
+  const min = Math.min(rNorm, gNorm, bNorm);
+  const l = (max + min) / 2;
   
-  return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
+  let h = 0, s = 0;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    
+    if (max === rNorm) h = ((gNorm - bNorm) / d + (gNorm < bNorm ? 6 : 0)) / 6;
+    else if (max === gNorm) h = ((bNorm - rNorm) / d + 2) / 6;
+    else h = ((rNorm - gNorm) / d + 4) / 6;
+  }
+  
+  // Adjust lightness: from dark (0.3) to light (0.8)
+  const newL = 0.3 + (index / (total - 1)) * 0.5;
+  
+  // Convert HSL back to RGB
+  const hslToRgb = (h: number, s: number, l: number) => {
+    let r, g, b;
+    
+    if (s === 0) {
+      r = g = b = l;
+    } else {
+      const hue2rgb = (p: number, q: number, t: number) => {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1/6) return p + (q - p) * 6 * t;
+        if (t < 1/2) return q;
+        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+        return p;
+      };
+      
+      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      const p = 2 * l - q;
+      r = hue2rgb(p, q, h + 1/3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1/3);
+    }
+    
+    return {
+      r: Math.round(r * 255),
+      g: Math.round(g * 255),
+      b: Math.round(b * 255)
+    };
+  };
+  
+  const rgb = hslToRgb(h, s, newL);
+  return `#${rgb.r.toString(16).padStart(2, '0')}${rgb.g.toString(16).padStart(2, '0')}${rgb.b.toString(16).padStart(2, '0')}`;
 };
 
 export const PartForm = ({ onAddPart }: PartFormProps) => {
